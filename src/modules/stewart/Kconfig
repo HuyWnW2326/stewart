@@ -1,0 +1,5 @@
+menuconfig MODULES_STEWART
+	bool "Stewart"
+	default y
+	---help---
+
