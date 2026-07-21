@@ -71,6 +71,8 @@ void Stewart::parameters_update()
 		_param_pulse[3] = _param_pwm_main_max2.get();
 		_param_pulse[4] = _param_pwm_main_min3.get();
 		_param_pulse[5] = _param_pwm_main_max3.get();
+		_deg_min = _param_stewart_deg_min.get();
+		_deg_max = _param_stewart_deg_max.get();
 	}
 }
 

@@ -82,13 +82,13 @@ private:
 	inline int8_t deg_to_pulse_normed(float deg)
 	{
 		int16_t deg_tmp = deg_limit(deg);
-		return (PULSE_NOMRED_MAX - PULSE_NOMRED_MIN) * (deg_tmp - DEG_MIN) / (DEG_MAX - DEG_MIN) + PULSE_NOMRED_MIN;
+		return (PULSE_NOMRED_MAX - PULSE_NOMRED_MIN) * (deg_tmp - _deg_min) / (_deg_max - _deg_min) + PULSE_NOMRED_MIN;
 	}
 
 	int16_t deg_limit(int16_t deg)
 	{
-		if(deg > DEG_MAX)	return DEG_MAX;
-		else if(deg < DEG_MIN) 	return DEG_MIN;
+		if(deg > _deg_max)	return _deg_max;
+		else if(deg < _deg_min) return _deg_min;
 		else			return deg;
 	}
 
@@ -106,14 +106,14 @@ private:
 
 	// Parameters
 	DEFINE_PARAMETERS(
-		(ParamInt<px4::params::SYS_AUTOSTART>) _param_sys_autostart,   /**< example parameter */
-		(ParamInt<px4::params::SYS_AUTOCONFIG>) _param_sys_autoconfig,  /**< another parameter */
 		(ParamInt<px4::params::PWM_MAIN_MAX1>) _param_pwm_main_max1,
 		(ParamInt<px4::params::PWM_MAIN_MAX2>) _param_pwm_main_max2,
 		(ParamInt<px4::params::PWM_MAIN_MAX3>) _param_pwm_main_max3,
 		(ParamInt<px4::params::PWM_MAIN_MIN1>) _param_pwm_main_min1,
 		(ParamInt<px4::params::PWM_MAIN_MIN2>) _param_pwm_main_min2,
-		(ParamInt<px4::params::PWM_MAIN_MIN3>) _param_pwm_main_min3
+		(ParamInt<px4::params::PWM_MAIN_MIN3>) _param_pwm_main_min3,
+		(ParamFloat<px4::params::STEWART_DEG_MIN>) _param_stewart_deg_min,
+		(ParamFloat<px4::params::STEWART_DEG_MAX>) _param_stewart_deg_max
 	)
 
 
@@ -121,8 +121,8 @@ private:
 	float _pulse_servo_2{0.0f};
 	float _pulse_servo_3{0.0f};
 	float _param_pulse[6]= {0.0f, };
-	static constexpr float DEG_MAX = 90.0f;
-	static constexpr float DEG_MIN = 0.0f;
+	float _deg_min{0.0f};
+	float _deg_max{0.0f};
 	static constexpr int8_t PULSE_NOMRED_MAX = 1.0f;
 	static constexpr int8_t PULSE_NOMRED_MIN = -1.0f;
 };
