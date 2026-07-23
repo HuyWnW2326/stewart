@@ -50,6 +50,7 @@
 #include <uORB/topics/vehicle_angular_velocity.h>
 #include <uORB/topics/vehicle_status.h>
 
+#include "InverseKinematics.hpp"
 
 using namespace time_literals;
 
@@ -79,13 +80,16 @@ private:
 
 	void parameters_update();
 
-	inline int8_t deg_to_pulse_normed(float deg)
+	/** Inverse Kinematics */
+	InverseKinematics _inv_kinematics;
+
+	inline float deg_to_pulse_normed(float deg)
 	{
-		int16_t deg_tmp = deg_limit(deg);
+		float deg_tmp = (deg_limit(deg));
 		return (PULSE_NOMRED_MAX - PULSE_NOMRED_MIN) * (deg_tmp - _deg_min) / (_deg_max - _deg_min) + PULSE_NOMRED_MIN;
 	}
 
-	int16_t deg_limit(int16_t deg)
+	float deg_limit(float deg)
 	{
 		if(deg > _deg_max)	return _deg_max;
 		else if(deg < _deg_min) return _deg_min;
@@ -106,14 +110,19 @@ private:
 
 	// Parameters
 	DEFINE_PARAMETERS(
-		(ParamInt<px4::params::PWM_MAIN_MAX1>) _param_pwm_main_max1,
-		(ParamInt<px4::params::PWM_MAIN_MAX2>) _param_pwm_main_max2,
-		(ParamInt<px4::params::PWM_MAIN_MAX3>) _param_pwm_main_max3,
-		(ParamInt<px4::params::PWM_MAIN_MIN1>) _param_pwm_main_min1,
-		(ParamInt<px4::params::PWM_MAIN_MIN2>) _param_pwm_main_min2,
-		(ParamInt<px4::params::PWM_MAIN_MIN3>) _param_pwm_main_min3,
+		// (ParamInt<px4::params::PWM_MAIN_MAX1>) _param_pwm_main_max1,
+		// (ParamInt<px4::params::PWM_MAIN_MAX2>) _param_pwm_main_max2,
+		// (ParamInt<px4::params::PWM_MAIN_MAX3>) _param_pwm_main_max3,
+		// (ParamInt<px4::params::PWM_MAIN_MIN1>) _param_pwm_main_min1,
+		// (ParamInt<px4::params::PWM_MAIN_MIN2>) _param_pwm_main_min2,
+		// (ParamInt<px4::params::PWM_MAIN_MIN3>) _param_pwm_main_min3,
 		(ParamFloat<px4::params::STEWART_DEG_MIN>) _param_stewart_deg_min,
-		(ParamFloat<px4::params::STEWART_DEG_MAX>) _param_stewart_deg_max
+		(ParamFloat<px4::params::STEWART_DEG_MAX>) _param_stewart_deg_max,
+		(ParamFloat<px4::params::STEWART_REL_HGT>) _param_stewart_rel_hgt,
+		(ParamFloat<px4::params::STEWART_NORM_NX>) _param_stewart_norm_nx,
+		(ParamFloat<px4::params::STEWART_NORM_NY>) _param_stewart_norm_ny,
+		(ParamFloat<px4::params::STEWART_D_ROLL>) _param_stewart_roll_des,
+		(ParamFloat<px4::params::STEWART_D_PITCH>) _param_stewart_pitch_des
 	)
 
 
@@ -125,4 +134,9 @@ private:
 	float _deg_max{0.0f};
 	static constexpr int8_t PULSE_NOMRED_MAX = 1.0f;
 	static constexpr int8_t PULSE_NOMRED_MIN = -1.0f;
+	float _stewart_rel_hgt{0.0f};
+	float _stewart_norm_nx{0.0f};
+	float _stewart_norm_ny{0.0f};
+	float _stewart_roll_des{0.0f};
+	float _stewart_pitch_des{0.0f};
 };

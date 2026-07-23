@@ -39,7 +39,9 @@ px4_add_module(
 		#-O0             # uncomment when debugging
 	SRCS
 		Stewart.cpp
+		InverseKinematics.cpp
 		Stewart.hpp
+		InverseKinematics.hpp
 	DEPENDS
 		px4_work_queue
 	)

@@ -62,3 +62,58 @@ PARAM_DEFINE_FLOAT(STEWART_DEG_MIN, 0.f);
  * @group Stewart platform
  */
 PARAM_DEFINE_FLOAT(STEWART_DEG_MAX, 120.f);
+
+/**
+ * Relative height of the stewart platform
+ *
+ * @unit mm
+ * @min 40
+ * @max 100
+ * @decimal 1
+ * @increment 1
+ * @group Stewart platform
+ */
+PARAM_DEFINE_FLOAT(STEWART_REL_HGT, 65.0f);
+
+/**
+ *
+ * Normalized x component of the stewart platform orientation
+ * @min -1
+ * @max 1
+ * @decimal 2
+ * @increment 0.01
+ * @group Stewart platform
+ */
+PARAM_DEFINE_FLOAT(STEWART_NORM_NX, 0.0f);
+
+/**
+ *
+ * Normalized y component of the stewart platform orientation
+ * @min -1
+ * @max 1
+ * @decimal 2
+ * @increment 0.01
+ * @group Stewart platform
+ */
+PARAM_DEFINE_FLOAT(STEWART_NORM_NY, 0.0f);
+
+/**
+ * Desired roll of the stewart platform
+ * @min -45
+ * @max  45
+ * @decimal 1
+ * @increment 1
+ * @group Stewart platform
+ */
+PARAM_DEFINE_FLOAT(STEWART_D_ROLL, 0.0f);
+
+/**
+ *
+ * Desired pitch of the stewart platform
+ * @min -45
+ * @max  45
+ * @decimal 1
+ * @increment 1
+ * @group Stewart platform
+ */
+PARAM_DEFINE_FLOAT(STEWART_D_PITCH, 0.0f);

@@ -33,6 +33,8 @@
 
 #include "Stewart.hpp"
 
+using namespace matrix;
+
 Stewart::Stewart() :
 	ModuleParams(nullptr),
 	ScheduledWorkItem(MODULE_NAME, px4::wq_configurations::hp_default)
@@ -65,14 +67,19 @@ void Stewart::parameters_update()
 		// update parameters from storage
 		ModuleParams::updateParams();
 
-		_param_pulse[0] = _param_pwm_main_min1.get();
-		_param_pulse[1] = _param_pwm_main_max1.get();
-		_param_pulse[2] = _param_pwm_main_min2.get();
-		_param_pulse[3] = _param_pwm_main_max2.get();
-		_param_pulse[4] = _param_pwm_main_min3.get();
-		_param_pulse[5] = _param_pwm_main_max3.get();
+		// _param_pulse[0] = _param_pwm_main_min1.get();
+		// _param_pulse[1] = _param_pwm_main_max1.get();
+		// _param_pulse[2] = _param_pwm_main_min2.get();
+		// _param_pulse[3] = _param_pwm_main_max2.get();
+		// _param_pulse[4] = _param_pwm_main_min3.get();
+		// _param_pulse[5] = _param_pwm_main_max3.get();
 		_deg_min = _param_stewart_deg_min.get();
 		_deg_max = _param_stewart_deg_max.get();
+		_stewart_rel_hgt = _param_stewart_rel_hgt.get();
+		_stewart_norm_nx = _param_stewart_norm_nx.get();
+		_stewart_norm_ny = _param_stewart_norm_ny.get();
+		_stewart_roll_des = _param_stewart_roll_des.get();
+		_stewart_pitch_des = _param_stewart_pitch_des.get();
 	}
 }
 
@@ -97,12 +104,21 @@ void Stewart::Run()
 	vehicle_angular_velocity_s angular_velocity;
 
 	if (_vehicle_angular_velocity_sub.update(&angular_velocity)) {
-		// _pulse_servo_1 = deg_to_pulse_normed(60.0f);
-		// _pulse_servo_2 = deg_to_pulse_normed(45.0f);
-		// _pulse_servo_3 = deg_to_pulse_normed(90.0f);
+
+		// Compute the desired servo angles using inverse kinematics
+		Vector2f orientation_vector = _inv_kinematics.angleToNormVectorConv(_stewart_roll_des, _stewart_pitch_des);
+
+		Vector3f servo_angles = _inv_kinematics.computeServoAngles(orientation_vector(0), orientation_vector(1), _stewart_rel_hgt);
+		// PX4_INFO("Servo angles [rad]: A=%.6f, B=%.6f, C=%.6f",
+		// 	(double)servo_angles(0),
+		// 	(double)servo_angles(1),
+		// 	(double)servo_angles(2));
+		_pulse_servo_1 = deg_to_pulse_normed(servo_angles(0));
+		_pulse_servo_2 = deg_to_pulse_normed(servo_angles(1));
+		_pulse_servo_3 = deg_to_pulse_normed(servo_angles(2));
 	}
 
-	// vehicle_cmd_publish(_pulse_servo_1, _pulse_servo_2, _pulse_servo_3, vehicle_status.system_id);
+	vehicle_cmd_publish(_pulse_servo_1, _pulse_servo_2, _pulse_servo_3, vehicle_status.system_id);
 
 	perf_end(_loop_perf);
 }
