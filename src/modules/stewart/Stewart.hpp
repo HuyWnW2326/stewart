@@ -50,6 +50,7 @@
 #include <uORB/topics/vehicle_angular_velocity.h>
 #include <uORB/topics/vehicle_status.h>
 
+#include <uORB/topics/vehicle_attitude.h>
 #include "InverseKinematics.hpp"
 
 using namespace time_literals;
@@ -76,6 +77,8 @@ public:
 private:
 	void Run() override;
 
+	void parameters_updated();
+
 	void vehicle_cmd_publish(float pulse_servo_1, float pulse_servo_2, float pulse_servo_3, uint8_t sys_id);
 
 	void parameters_update();
@@ -100,6 +103,8 @@ private:
 	uORB::Publication<vehicle_command_s> _vehicle_cmd_pub{ORB_ID(vehicle_command)};
 
 	// Subscriptions
+	uORB::Subscription _vehicle_attitude_sub{ORB_ID(vehicle_attitude)};
+
 	uORB::SubscriptionCallbackWorkItem _vehicle_angular_velocity_sub{this, ORB_ID(vehicle_angular_velocity)};
 	uORB::SubscriptionInterval         _parameter_update_sub{ORB_ID(parameter_update), 1_s}; // subscription limited to 1 Hz updates
 	uORB::Subscription 		   _vehicle_status_sub{ORB_ID(vehicle_status)};
@@ -121,8 +126,10 @@ private:
 		(ParamFloat<px4::params::STEWART_REL_HGT>) _param_stewart_rel_hgt,
 		(ParamFloat<px4::params::STEWART_NORM_NX>) _param_stewart_norm_nx,
 		(ParamFloat<px4::params::STEWART_NORM_NY>) _param_stewart_norm_ny,
-		(ParamFloat<px4::params::STEWART_D_ROLL>) _param_stewart_roll_des,
-		(ParamFloat<px4::params::STEWART_D_PITCH>) _param_stewart_pitch_des
+		(ParamFloat<px4::params::STEWART_D_ROLL>)  _param_stewart_roll_des,
+		(ParamFloat<px4::params::STEWART_D_PITCH>) _param_stewart_pitch_des,
+		(ParamFloat<px4::params::STEWART_MAX_ANG>) _param_stewart_max_angle,
+		(ParamFloat<px4::params::STEWART_SER_TES>) _param_stewart_servo_test
 	)
 
 
@@ -139,4 +146,6 @@ private:
 	float _stewart_norm_ny{0.0f};
 	float _stewart_roll_des{0.0f};
 	float _stewart_pitch_des{0.0f};
+
+	float _stewart_servo_test{0.0f};
 };

@@ -57,6 +57,11 @@ bool Stewart::init()
 	return true;
 }
 
+void
+Stewart::parameters_updated(){
+	_inv_kinematics.setMaxAng(_param_stewart_max_angle.get());
+}
+
 void Stewart::parameters_update()
 {
 	if (_parameter_update_sub.updated()) {
@@ -66,6 +71,7 @@ void Stewart::parameters_update()
 
 		// update parameters from storage
 		ModuleParams::updateParams();
+		parameters_updated();
 
 		// _param_pulse[0] = _param_pwm_main_min1.get();
 		// _param_pulse[1] = _param_pwm_main_max1.get();
@@ -80,6 +86,7 @@ void Stewart::parameters_update()
 		_stewart_norm_ny = _param_stewart_norm_ny.get();
 		_stewart_roll_des = _param_stewart_roll_des.get();
 		_stewart_pitch_des = _param_stewart_pitch_des.get();
+		_stewart_servo_test = _param_stewart_servo_test.get();
 	}
 }
 
@@ -102,23 +109,43 @@ void Stewart::Run()
 	}
 
 	vehicle_angular_velocity_s angular_velocity;
+	vehicle_attitude_s v_att{};
+
+	//Servo Test
+
+	// _pulse_servo_1 = deg_to_pulse_normed(_stewart_servo_test);
+	// _pulse_servo_2 = deg_to_pulse_normed(_stewart_servo_test);
+	// _pulse_servo_3 = deg_to_pulse_normed(_stewart_servo_test);
+
+	// vehicle_cmd_publish(_pulse_servo_1, _pulse_servo_2, _pulse_servo_3, vehicle_status.system_id);
 
 	if (_vehicle_angular_velocity_sub.update(&angular_velocity)) {
 
-		// Compute the desired servo angles using inverse kinematics
-		Vector2f orientation_vector = _inv_kinematics.angleToNormVectorConv(_stewart_roll_des, _stewart_pitch_des);
+		//Pooling mode for attitude subscription
+		if (!_vehicle_attitude_sub.copy(&v_att)) {
+			return;
+		}
+		const Quatf q{v_att.q};
 
-		Vector3f servo_angles = _inv_kinematics.computeServoAngles(orientation_vector(0), orientation_vector(1), _stewart_rel_hgt);
+		Vector2f balance_vector = _inv_kinematics.stewartBalanceCtrl(q);
+
+		// Compute the desired servo angles using inverse kinematics
+		//Vector2f orientation_vector = _inv_kinematics.angleToNormVectorConv(_stewart_roll_des, _stewart_pitch_des);
+
+		//Vector3f servo_angles = _inv_kinematics.computeServoAngles(orientation_vector(0), orientation_vector(1), _stewart_rel_hgt);
+		Vector3f servo_angles = _inv_kinematics.computeServoAngles(balance_vector(0), balance_vector(1), _stewart_rel_hgt);
+
 		// PX4_INFO("Servo angles [rad]: A=%.6f, B=%.6f, C=%.6f",
 		// 	(double)servo_angles(0),
 		// 	(double)servo_angles(1),
 		// 	(double)servo_angles(2));
+
 		_pulse_servo_1 = deg_to_pulse_normed(servo_angles(0));
 		_pulse_servo_2 = deg_to_pulse_normed(servo_angles(1));
 		_pulse_servo_3 = deg_to_pulse_normed(servo_angles(2));
-	}
 
-	vehicle_cmd_publish(_pulse_servo_1, _pulse_servo_2, _pulse_servo_3, vehicle_status.system_id);
+		vehicle_cmd_publish(_pulse_servo_1, _pulse_servo_2, _pulse_servo_3, vehicle_status.system_id);
+	}
 
 	perf_end(_loop_perf);
 }

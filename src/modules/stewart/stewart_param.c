@@ -68,12 +68,25 @@ PARAM_DEFINE_FLOAT(STEWART_DEG_MAX, 120.f);
  *
  * @unit mm
  * @min 40
- * @max 100
+ * @max 10000
  * @decimal 1
  * @increment 1
  * @group Stewart platform
  */
-PARAM_DEFINE_FLOAT(STEWART_REL_HGT, 65.0f);
+PARAM_DEFINE_FLOAT(STEWART_REL_HGT, 580.0f);
+
+/**
+ * Maximum compensation angle of the Stewart platform
+ *
+ * @unit deg
+ * @min 90
+ * @max 250
+ * @decimal 1
+ * @increment 1
+ * @group Stewart platform
+ */
+PARAM_DEFINE_FLOAT(STEWART_MAX_ANG, 205.0f);
+
 
 /**
  *
@@ -117,3 +130,15 @@ PARAM_DEFINE_FLOAT(STEWART_D_ROLL, 0.0f);
  * @group Stewart platform
  */
 PARAM_DEFINE_FLOAT(STEWART_D_PITCH, 0.0f);
+
+/**
+ *
+ * Mini servo test
+ *
+ * @min 0
+ * @max 360
+ * @decimal 1
+ * @increment 1
+ * @group Stewart platform
+ */
+PARAM_DEFINE_FLOAT(STEWART_SER_TES, 0.0f);
